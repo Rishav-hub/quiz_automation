@@ -2,4 +2,5 @@ pandas
 gunicorn
 Flask
 flask-cors
+openpyxl
 -e .
