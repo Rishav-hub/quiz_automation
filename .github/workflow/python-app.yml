@@ -1,4 +1,4 @@
-name: Quiz embed
+name: quizembed
 
 on:
   push:
