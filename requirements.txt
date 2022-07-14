@@ -1,5 +1,5 @@
 pandas
 gunicorn
 Flask
-Flask
+flask-cors
 -e .
