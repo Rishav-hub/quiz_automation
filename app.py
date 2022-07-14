@@ -47,14 +47,15 @@ def embedfile():
                 os.remove(i)
             file_path = os.path.join(XLSX_FILE_DIR, f.filename)
             f.save(file_path)
-
+            file_name = f.filename.split(".")[0].replace(" ", "_")
+            print(file_name)
             cleandir = 'artifacts/'
             for i in glob.glob(cleandir + '*.json'): 
                 os.remove(i)
             df = pd.read_excel(file_path)
             quiz = Quiz()
             final_list = quiz.embed_quiz_func(df)
-            out_file = open("artifacts/quiz.json", "w")
+            out_file = open(f"artifacts/{file_name}.json", "w")
             json.dump(final_list, out_file, indent = 4, cls=NpEncoder)
             out_file.close()
             return render_template('embed.html')
