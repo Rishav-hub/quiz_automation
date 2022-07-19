@@ -15,9 +15,12 @@ app = Flask(__name__)
 CORS(app)
 # Creating the upload folder
 XLSX_FILE_DIR = "uploads/"
-download_folder = "artifacts/"
-if not os.path.exists(download_folder):
-    os.mkdir(download_folder)
+download_folder_json = "artifacts/"
+download_folder_excel = "excel_artifacts/"
+if not os.path.exists(download_folder_json):
+    os.mkdir(download_folder_json)
+if not os.path.exists(download_folder_excel):
+    os.mkdir(download_folder_excel)
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -48,15 +51,22 @@ def embedfile():
             file_path = os.path.join(XLSX_FILE_DIR, f.filename)
             f.save(file_path)
             file_name = f.filename.split(".")[0].replace(" ", "_")
-            print(file_name)
-            cleandir = 'artifacts/'
-            for i in glob.glob(cleandir + '*.json'): 
+            for i in glob.glob(download_folder_json + '*.json'): 
+                os.remove(i)
+            for i in glob.glob(download_folder_excel + '*.xlsx'): 
                 os.remove(i)
             df = pd.read_excel(file_path)
             quiz = Quiz()
-            final_list = quiz.embed_quiz_func(df)
-            out_file = open(f"artifacts/{file_name}.json", "w")
-            json.dump(final_list, out_file, indent = 4, cls=NpEncoder)
+            new_df = quiz.return_import_data(df)
+            validate_df = quiz.validate_columns(new_df)
+
+            # Function to pass the dataframe to the convert to dataframe function
+            converted_df = quiz.convert_to_dataframe(validate_df)
+            converted_df.to_excel(f"excel_artifacts/{file_name}.xlsx", index=False)
+            # Function to pass the dataframe and convert to json
+            final_list = quiz.embed_quiz_func(converted_df)
+            out_file = open(f"artifacts/{file_name}.json", "w", encoding="utf-8")
+            json.dump(final_list, out_file, indent = 4, cls=NpEncoder, ensure_ascii=False)
             out_file.close()
             return render_template('embed.html')
         except Exception as e:
@@ -65,12 +75,16 @@ def embedfile():
         render_template('embed.html')
 
 # Sending the file to the user
-@app.route('/download')
-def download():
+@app.route('/download_json')
+def download_json():
     file_name = os.listdir('artifacts')[0]
     download_folder_1 = f'artifacts/{file_name}'
     return send_file(download_folder_1, as_attachment=True)
 
-
+@app.route('/download_excel')
+def download_excel():
+    file_name = os.listdir('excel_artifacts')[0]
+    download_folder_1 = f'excel_artifacts/{file_name}'
+    return send_file(download_folder_1, as_attachment=True)
 if __name__ == '__main__':
     app.run()  # running the flask app
