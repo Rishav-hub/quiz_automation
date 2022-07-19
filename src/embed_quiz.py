@@ -48,7 +48,6 @@ class Quiz:
             return final_list
 
         except Exception as e:
-            # logging.info(e)
             raise e
     
     def convert_to_dataframe(self,new_df):
@@ -162,4 +161,14 @@ class Quiz:
         except Exception as e:
             if "SettingWithCopyWarning" in str(e):
                 pass
+            raise(e)
+    def divide_excel_into_chunks(self, df, chunk_size):
+        try:
+            print("Started dividing excel into chunks")
+            df_list = []
+            for i in range(0, len(df), chunk_size):
+                df_list.append(df[i:i + chunk_size])
+            print("Finished dividing excel into chunks")
+            return df_list
+        except Exception as e:
             raise(e)

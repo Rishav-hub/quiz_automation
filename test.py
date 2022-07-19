@@ -24,7 +24,7 @@ if __name__ == "__main__":
         
         # print(i)
         file_name = i.split(".")[0]
-        # print(f"Started {file_name}")
+        print(f"Started {file_name}")
         # print('shape:', df.shape)
         quiz = Quiz()
         new_df = quiz.return_import_data(df)
@@ -34,14 +34,26 @@ if __name__ == "__main__":
         # validate column
         validate_df = quiz.validate_columns(new_df)
         print('Validated shape:', validate_df.shape)
+        # How to divide excel into multiple sheets
 
-        # Function to pass the dataframe to the convert to dataframe function
-        converted_df = quiz.convert_to_dataframe(validate_df)
-        converted_df.to_excel(f"excel_artifacts/{file_name}.xlsx")
+        list_of_df = quiz.divide_excel_into_chunks(validate_df ,10)
+        # print('List of df shape:', print(list_of_df))
+        counter = 0      
+        for df_in_chunks in list_of_df:
+            # Function to pass the dataframe to the convert to dataframe function
+            converted_df = quiz.convert_to_dataframe(df_in_chunks)
+            if not os.path.exists(f"master_folder/{file_name}"):
+                os.mkdir(f"master_folder/{file_name}")
+            if not os.path.exists(f"master_folder/{file_name}/excel_artifacts"):
+                os.mkdir(f"master_folder/{file_name}/excel_artifacts")
+            converted_df.to_excel(f"master_folder/{file_name}/excel_artifacts/{file_name}_{counter}.xlsx")
 
-        # Function to pass the dataframe and convert to json
-        final_list = quiz.embed_quiz_func(converted_df)
-        print(f"completed {file_name}")
-        out_file = open(f"artifacts/{file_name}.json", "w", encoding="utf-8")
-        json.dump(final_list, out_file, indent = 4, cls=NpEncoder, ensure_ascii=False)
-        out_file.close()
+            # Function to pass the dataframe and convert to json
+            final_list = quiz.embed_quiz_func(converted_df)
+            print(f"completed {file_name}")
+            if not os.path.exists(f"master_folder/{file_name}/json_artifacts"):
+                os.mkdir(f"master_folder/{file_name}/json_artifacts")
+            out_file = open(f"master_folder/{file_name}/json_artifacts/{file_name}_{counter}.json", "w", encoding="utf-8")
+            json.dump(final_list, out_file, indent = 4, cls=NpEncoder, ensure_ascii=False)
+            counter += 1
+            out_file.close()

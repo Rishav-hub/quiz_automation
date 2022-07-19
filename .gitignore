@@ -132,3 +132,7 @@ Experiment Notebook.ipynb
 videos/
 Tasks.txt
 *.ipynb
+master_folder/
+artifacts/
+excel_artifacts/
+uploads/
